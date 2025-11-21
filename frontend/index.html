@@ -3,9 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./src/style.css">
     <title>RockPaperScissors</title>
   </head>
   <body>
-    <div id="app"></div>
+
+    <div class="opponent-side side">
+      <div class="player-info">
+        <div class="avatar-container">
+          <img src="/avatars/avatar1.png" class="opponent-side-avatar avatar-picture">
+        </div>
+        <div class="opponent-side-nickname">Shrek</div>
+      </div>
+
+      <div class="opponent-selected-action-container">
+        <img src="" class="opponent-selected-action">
+      </div>
+    </div>
+
+    <div class="my-side side">
+
+
+      <div class="my-player-turn">
+        <div class="player-selected-action">
+
+        </div>
+      </div>
+
+
+      <div class="my-side-player">
+        <div class="player-info player-info-my-side">
+          <div class="avatar-container">
+            <img src="/avatars/avatar1.png" class="opponent-side-avatar avatar-picture">
+          </div>
+          <div class="opponent-side-nickname">Boba</div>
+        </div>
+        <form class="player-action">
+          <input type="button" name="rock" class="action">
+          <input type="button" name="paper" class="action">
+          <input type="button" name="scissors" class="action">
+        </form>
+      </div>
+    </div>
   </body>
 </html>
