@@ -1,19 +1,13 @@
 package com.whitepencil.rps.service;
 
-import com.whitepencil.rps.dto.Player;
-import com.whitepencil.rps.dto.PlayerDataRequest;
-import com.whitepencil.rps.dto.PlayerRoomData;
-import com.whitepencil.rps.dto.Room;
+import com.whitepencil.rps.dto.*;
 import com.whitepencil.rps.exception.PlayerNotFoundException;
 import de.huxhorn.sulky.ulid.ULID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -28,10 +22,6 @@ public class RoomService {
         this.activePlayers = activePlayers;
     }
 
-    public void createRoom() {
-
-    }
-
     public PlayerRoomData createPlayer(String nickname, String avatarUrl) {
         //TODO проверка на корректность
         String playerId = generatePlayerId();
@@ -41,41 +31,39 @@ public class RoomService {
         return new PlayerRoomData(playerId, nickname, avatarUrl);
     }
 
+    public Player getPlayerById(String playerId) {
+        return activePlayers
+                .stream()
+                .filter(player -> Objects.equals(player.getId(), playerId))
+                .findFirst()
+                .orElseThrow(() -> new PlayerNotFoundException(playerId));
+    }
+
     public String generatePlayerId() {
         ULID ulid = new ULID();
         return ulid.nextULID();
     }
 
-    //TODO переделать
     public String generateRoomKey() {
-        char[] key = new char[CODE_LENGTH];
-        for(int i = 0; i < key.length; i++) {
-            int charType = ThreadLocalRandom.current().nextInt(0, 3);
-            switch (charType) {
-                case 0:
-                    key[i] = (char)ThreadLocalRandom.current().nextInt(48, 58);
-                    break;
-                case 1:
-                    key[i] = (char)ThreadLocalRandom.current().nextInt(65, 91);
-                    break;
-                case 2:
-                    key[i] = (char)ThreadLocalRandom.current().nextInt(97, 123);
-                    break;
-                default:
-                    key[i] = '0';
-                    break;
-            }
-        }
-        return Arrays.toString(key);
+        return new ULID().nextULID().substring(0, 6);
     }
 
-
     public PlayerRoomData updatePlayer(String playerId, PlayerDataRequest newPlayerData) {
-        Player storedPlayerData = activePlayers.stream()
-                .filter(player -> Objects.equals(player.getId(), playerId)).findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException(playerId));
+        Player storedPlayerData = getPlayerById(playerId);
         storedPlayerData.setNickname(newPlayerData.getNickname());
         storedPlayerData.setAvatarUrl(newPlayerData.getAvatarUrl());
         return new PlayerRoomData(playerId, newPlayerData.getNickname(), newPlayerData.getAvatarUrl());
+    }
+
+    public String createRoom(RoomCreateRequest requestData) {
+        String roomKey = generateRoomKey();
+        getPlayerById(requestData.getCreatorId());
+        Room room = new Room(roomKey, requestData.getScoreToWin());
+        rooms.add(room);
+        return roomKey;
+    }
+
+    public List<Room> getRooms() {
+        return rooms;
     }
 }
